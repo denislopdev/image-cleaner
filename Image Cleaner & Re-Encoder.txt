@@ -1,0 +1,133 @@
+Создай простое одностраничное веб-приложение для обработки изображений.
+
+Название:
+Image Cleaner & Re-Encoder
+
+URL:
+/image-cleaner
+
+Цель:
+Пользователь загружает изображение, приложение полностью декодирует его и создаёт новый файл изображения с выбранными параметрами. Новый файл должен иметь новое имя, новые размеры/формат при необходимости и не содержать обычные EXIF, IPTC или XMP metadata (через canvas export).
+
+Позиционирование:
+Приложение — инструмент privacy / re-encode / resize / convert.
+Не позиционировать как инструмент обхода AI detection, Content Credentials, C2PA или маркировки социальных сетей.
+Не обещать удаление или обход AI-generated labels.
+В UI указать: обработка локальная; результат — новый файл без типичных metadata-блоков; платформы могут классифицировать контент самостоятельно.
+
+ИНТЕРФЕЙС
+
+Страница должна быть максимально простой.
+
+Desktop: две колонки 50/50 — Original Image | Processed Image.
+Mobile: вертикальный стек Original → Options → Process → Processed.
+
+Левая колонка (Original):
+* Drag & Drop зона
+* кнопка Upload Image
+* поддержка JPG, JPEG, PNG, WEBP
+* preview изображения
+* показать: filename, format, width × height, file size
+
+Блок Advanced Options (после загрузки):
+* Output Format, Image Quality, Resize, Maximum Width
+* большая кнопка Process Image
+
+Правая колонка (Processed):
+* preview результата
+* новый filename, format, width × height, file size
+* Download Processed Image
+* Process Another Image
+
+После успешной обработки:
+* стрелка Original → Processed между колонками
+* Before / After slider (только после process)
+
+Privacy text:
+“Images are processed locally in your browser and are not uploaded to our server.”
+
+ОБРАБОТКА ИЗОБРАЖЕНИЯ
+
+При нажатии Process Image:
+
+1. Полностью декодировать изображение (createImageBitmap, fallback Image).
+2. Создать новый canvas / OffscreenCanvas.
+3. Нарисовать изображение заново через drawImage().
+4. Экспортировать через canvas.toBlob() — не копировать байты исходника.
+5. Не переносить EXIF, IPTC, XMP, camera/GPS/comments/software/thumbnail metadata.
+
+Имя файла:
+image-YYYYMMDD-<6 hex>.{ext}
+Пример: image_original.jpg → image-20260915-a8f32.jpg
+
+НАСТРОЙКИ
+
+Output Format:
+* JPG (default)
+* Auto — сохранить семейство формата исходника (jpeg→JPG, png→PNG, webp→WEBP)
+* PNG
+* WEBP
+
+Image Quality:
+* ползунок 70–100%
+* Default: 92%
+* Применяется к JPG и WEBP; PNG остаётся lossless
+
+Resize:
+* Original Size / 99% / 98% (default) / 95% / Custom %
+
+Maximum Width (обязательная опция):
+* Original / 2048 / 1920 / 1600 / Custom
+* Применяется после % resize как верхний предел ширины
+
+PNG/WEBP с прозрачностью → JPG:
+* заливка белым фоном перед encode (hint в UI)
+
+Лимиты v1:
+* файл ≤ 25 MB
+* сторона ≤ 8192 px
+* иначе понятная ошибка
+
+Не изменять визуальное содержание сверх resize/encode.
+Не добавлять фильтры, заметные цветовые правки или watermark.
+
+Ошибки:
+* неподдерживаемый формат (в т.ч. HEIC)
+* битый файл
+* превышение лимитов
+
+RE-ENCODING
+
+Browser pipeline:
+File → createImageBitmap / Image → Canvas → drawImage() → canvas.toBlob()
+
+PRIVACY
+
+Вся обработка client-side.
+Изображения не загружаются на сервер.
+Нет backend, БД, регистрации, API keys.
+
+DESIGN
+
+Современный минималистичный SaaS-интерфейс.
+Светлый background, карточки с border-radius 12–16px.
+Большая заметная кнопка Process Image.
+
+TECHNOLOGY
+
+v1: HTML + CSS + JavaScript (статическая страница).
+Файлы: index.html, styles.css, app.js
+При встройке на сайт — папка /image-cleaner/
+
+SEO
+
+Title:
+Image Cleaner & Re-Encoder
+
+Description:
+Clean, resize, convert and re-encode images directly in your browser. Remove standard image metadata and create a fresh optimized image file.
+
+ФИНАЛЬНЫЙ FLOW
+
+Upload → Options → Process Image → Preview → Download Processed Image
+(+ Before/After slider после process)

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Image Cleaner & Re-Encoder</title>
+  <meta
+    name="description"
+    content="Clean, resize, convert and re-encode images directly in your browser. Remove standard image metadata and create a fresh optimized image file."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <p class="eyebrow">Local · Client-side</p>
+      <h1>Image Cleaner</h1>
+      <p class="tagline">
+        Re-encode images in your browser. Fresh file, standard metadata left behind.
+      </p>
+    </header>
+
+    <p class="privacy" role="note">
+      Images are processed locally in your browser and are not uploaded to our server.
+      Platforms may still classify content on their own — this tool does not claim to remove AI labels or Content Credentials.
+    </p>
+
+    <section class="workspace" aria-label="Image workspace">
+      <article class="panel" id="original-panel">
+        <div class="panel-head">
+          <h2>Original Image</h2>
+        </div>
+
+        <div
+          class="dropzone"
+          id="dropzone"
+          tabindex="0"
+          role="button"
+          aria-label="Upload image by dropping a file or pressing Enter"
+        >
+          <input
+            type="file"
+            id="file-input"
+            accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+            hidden
+          />
+          <div class="dropzone-idle" id="dropzone-idle">
+            <span class="dropzone-icon" aria-hidden="true"></span>
+            <p class="dropzone-title">Drop an image here</p>
+            <p class="dropzone-hint">JPG, PNG, or WEBP · max 25 MB</p>
+            <button type="button" class="btn btn-secondary" id="upload-btn">
+              Upload Image
+            </button>
+          </div>
+          <div class="preview-wrap hidden" id="original-preview-wrap">
+            <img id="original-preview" alt="Original image preview" />
+          </div>
+        </div>
+
+        <dl class="meta" id="original-meta" hidden>
+          <div><dt>Filename</dt><dd id="orig-filename">—</dd></div>
+          <div><dt>Format</dt><dd id="orig-format">—</dd></div>
+          <div><dt>Size</dt><dd id="orig-dimensions">—</dd></div>
+          <div><dt>File size</dt><dd id="orig-filesize">—</dd></div>
+        </dl>
+      </article>
+
+      <div class="flow-arrow" id="flow-arrow" aria-hidden="true" hidden>
+        <span>Original</span>
+        <span class="arrow-line"></span>
+        <span>Processed</span>
+      </div>
+
+      <section class="options" id="options" hidden aria-label="Advanced options">
+        <h2>Advanced Options</h2>
+
+        <div class="options-grid">
+          <label class="field">
+            <span class="field-label">Output Format</span>
+            <select id="opt-format">
+              <option value="jpg" selected>JPG</option>
+              <option value="auto">Auto</option>
+              <option value="png">PNG</option>
+              <option value="webp">WEBP</option>
+            </select>
+            <span class="field-hint" id="format-hint">
+              JPG fills transparent areas with white.
+            </span>
+          </label>
+
+          <label class="field">
+            <span class="field-label">
+              Image Quality
+              <span class="value-pill" id="quality-value">92%</span>
+            </span>
+            <input type="range" id="opt-quality" min="70" max="100" value="92" />
+            <span class="field-hint">Applies to JPG and WEBP. PNG stays lossless.</span>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Resize</span>
+            <select id="opt-resize">
+              <option value="100">Original Size</option>
+              <option value="99">99%</option>
+              <option value="98" selected>98%</option>
+              <option value="95">95%</option>
+              <option value="custom">Custom</option>
+            </select>
+            <input
+              type="number"
+              id="opt-resize-custom"
+              class="hidden"
+              min="1"
+              max="100"
+              value="98"
+              aria-label="Custom resize percent"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Maximum Width</span>
+            <select id="opt-max-width">
+              <option value="original" selected>Original</option>
+              <option value="2048">2048 px</option>
+              <option value="1920">1920 px</option>
+              <option value="1600">1600 px</option>
+              <option value="custom">Custom</option>
+            </select>
+            <input
+              type="number"
+              id="opt-max-width-custom"
+              class="hidden"
+              min="1"
+              max="8192"
+              value="1920"
+              aria-label="Custom maximum width in pixels"
+            />
+          </label>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-process" id="process-btn">
+          Process Image
+        </button>
+      </section>
+
+      <article class="panel" id="processed-panel">
+        <div class="panel-head">
+          <h2>Processed Image</h2>
+        </div>
+
+        <div class="processed-empty" id="processed-empty">
+          <p>Processed image will appear here</p>
+        </div>
+
+        <div class="preview-wrap hidden" id="processed-preview-wrap">
+          <img id="processed-preview" alt="Processed image preview" />
+        </div>
+
+        <dl class="meta" id="processed-meta" hidden>
+          <div><dt>Filename</dt><dd id="proc-filename">—</dd></div>
+          <div><dt>Format</dt><dd id="proc-format">—</dd></div>
+          <div><dt>Size</dt><dd id="proc-dimensions">—</dd></div>
+          <div><dt>File size</dt><dd id="proc-filesize">—</dd></div>
+        </dl>
+
+        <div class="processed-actions hidden" id="processed-actions">
+          <a class="btn btn-primary" id="download-btn" download>Download Processed Image</a>
+          <button type="button" class="btn btn-secondary" id="another-btn">
+            Process Another Image
+          </button>
+        </div>
+      </article>
+    </section>
+
+    <p class="error" id="error" role="alert" hidden></p>
+
+    <section class="compare hidden" id="compare" aria-label="Before and after comparison">
+      <h2>Before / After</h2>
+      <div class="compare-frame" id="compare-frame">
+        <img id="compare-after" alt="Processed comparison" draggable="false" />
+        <div class="compare-before-clip" id="compare-before-clip">
+          <img id="compare-before" alt="Original comparison" draggable="false" />
+        </div>
+        <div class="compare-handle" id="compare-handle" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-label="Compare before and after" tabindex="0">
+          <span class="compare-knob" aria-hidden="true"></span>
+        </div>
+        <span class="compare-label compare-label-before">Before</span>
+        <span class="compare-label compare-label-after">After</span>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Image Cleaner &amp; Re-Encoder · decode → canvas → encode</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

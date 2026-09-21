@@ -533,12 +533,35 @@ input[type="range"] {
 }
 
 .footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
   color: var(--ink-muted);
   font-size: 0.88rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .footer p {
   margin: 0;
+}
+
+.footer-credit {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.footer-coffee a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-coffee a:hover {
+  color: var(--accent-hover);
 }
 
 .hidden {
